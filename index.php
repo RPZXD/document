@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // อ่าน config
 $config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
-$pageConfig = $config['index'];
+$pageConfig = $config['global'];
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +13,8 @@ $pageConfig = $config['index'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageConfig['pageTitle']); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Google Font: Mali -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@200;300;400;500;600;700&display=swap">
     <style>
         /* เพิ่มลูกเล่น animation */
         .fade-in {
@@ -38,22 +40,27 @@ $pageConfig = $config['index'];
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<body class="bg-gray-100 font-sans leading-normal tracking-normal" style="font-family: 'Mali', sans-serif;">
 
     <!-- Navbar -->
     <nav class="gradient-bg py-4 shadow-lg fade-in">
         <div class="container mx-auto flex justify-between items-center px-6">
-            <a href="#" class="text-white text-2xl font-bold tracking-wider hover:scale-105 transition-transform duration-200">โรงเรียน ABC</a>
+            <a href="/" class="flex items-center text-white text-2xl font-bold tracking-wider hover:scale-105 transition-transform duration-200">
+                <?php if (!empty($pageConfig['logoLink'])): ?>
+                    <img src="<?php echo htmlspecialchars($pageConfig['logoLink']); ?>" alt="logo" class="h-10 w-10 mr-2 rounded-full bg-white p-1 shadow" />
+                <?php endif; ?>
+                <?php echo htmlspecialchars($pageConfig['nameschool']); ?>
+            </a>
             <div>
-                <a href="#upload" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">อัปโหลดเอกสาร <?php echo $pageConfig['icon']; ?></a>
-                <a href="#login" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">เข้าสู่ระบบ 🔑</a>
+                <a href="#upload" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">อัปโหลดเอกสาร</a>
+                <a href="#login" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">เข้าสู่ระบบ</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="gradient-bg text-white h-screen flex flex-col justify-center items-center text-center p-6 fade-in">
-        <h1 class="text-5xl font-bold mb-4 bounce"><?php echo htmlspecialchars($pageConfig['pageTitle']) . ' ' . $pageConfig['icon']; ?></h1>
+        <h1 class="text-5xl font-bold mb-4 bounce"><?php echo htmlspecialchars($pageConfig['pageTitle']); ?></h1>
         <p class="text-xl mb-8">แอปพลิเคชันที่ช่วยให้การอัปโหลดเอกสารง่าย และปลอดภัยยิ่งขึ้น</p>
         <a href="#upload" class="bg-yellow-500 text-blue-600 px-6 py-3 rounded-lg text-xl font-semibold hover:bg-yellow-400 glow transition duration-200 shadow-lg animate-pulse">เริ่มใช้งานทันที 🚀</a>
     </section>
@@ -85,7 +92,7 @@ $pageConfig = $config['index'];
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 fade-in">
         <div class="container mx-auto text-center">
-            <p>&copy; <?=date('Y')?> โรงเรียนพิชัย. All rights reserved. | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?></p>
+            <p>&copy; <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?>. All rights reserved. | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?></p>
         </div>
     </footer>
 
