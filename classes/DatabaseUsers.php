@@ -25,17 +25,10 @@ class DatabaseUsers
         }
     }
 
-    public function getUserById($id)
-    {
-        $sql = "SELECT * FROM users WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch();
-    }
 
-    public function getUserByUsername($username)
+    public function getTeacherByUsername($username)
     {
-        $sql = "SELECT * FROM users WHERE username = :username";
+        $sql = "SELECT * FROM teacher WHERE Teach_id = :username OR Teach_name = :username";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['username' => $username]);
         return $stmt->fetch();

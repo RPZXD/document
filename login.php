@@ -1,39 +1,92 @@
 <?php
 session_start();
-require __DIR__ . '/vendor/autoload.php';
 
-use App\DatabaseUsers;
+// โหลด config
+$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+$pageConfig = $config['global'];
 
-$error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db = new DatabaseUsers();
-    $user = $db->getUserByUsername($_POST['username'] ?? '');
+// เพิ่ม: เรียกใช้ LoginController
+require_once __DIR__ . '/controllers/LoginController.php';
 
-    if ($user && password_verify($_POST['password'] ?? '', $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        header('Location: index.php');
-        exit;
-    } else {
-        $error = 'Invalid username or password.';
-    }
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $input_username = $_POST['username'];
+    $input_password = $_POST['password'];
+    $input_role = $_POST['role'];
+
+    $controller = new LoginController();
+    $error = $controller->login($input_username, $input_password, $input_role);
 }
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <meta charset="utf-8">
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($pageConfig['pageTitle']); ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Google Font: Mali -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@200;300;400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Login</h2>
-    <?php if ($error): ?>
-        <p style="color:red"><?= htmlspecialchars($error) ?></p>
-    <?php endif; ?>
-    <form method="post" action="login.php">
-        <label>Username: <input type="text" name="username" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <button type="submit">Login</button>
-    </form>
+<body class="bg-gradient-to-r from-blue-500 to-purple-600 font-sans" style="font-family: 'Mali', sans-serif;">
+
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md" data-aos="fade-up">
+            <div class="flex flex-col items-center mb-4">
+                <?php if (!empty($pageConfig['logoLink'])): ?>
+                    <img src="<?php echo htmlspecialchars($pageConfig['logoLink']); ?>" alt="logo" class="h-14 w-14 mb-2 rounded-full bg-white p-1 shadow" />
+                <?php endif; ?>
+                <span class="text-blue-700 font-bold text-lg"><?php echo htmlspecialchars($pageConfig['nameschool']); ?></span>
+            </div>
+            <h2 class="text-3xl font-bold text-center text-blue-600 mb-6"><?php echo htmlspecialchars($pageConfig['pageTitle']); ?> 🌟</h2>
+
+            <?php if (isset($error)) { ?>
+                <div class="bg-red-400 text-white p-3 rounded mb-6 text-center">
+                    <?php echo $error; ?>
+                </div>
+            <?php } ?>
+
+            <form action="login.php" method="POST">
+                <div class="mb-4">
+                    <label for="username" class="block text-lg font-medium text-gray-700">ชื่อผู้ใช้ 👤</label>
+                    <input type="text" name="username" id="username" class="mt-1 p-3 w-full border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อผู้ใช้" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-lg font-medium text-gray-700">รหัสผ่าน 🔒</label>
+                    <input type="password" name="password" id="password" class="mt-1 p-3 w-full border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสผ่าน" required>
+                </div>
+                <div class="mb-4">
+                    <label for="role" class="block text-lg font-medium text-gray-700">เลือกบทบาท 🛡️</label>
+                    <select name="role" id="role" class="mt-1 p-3 w-full border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">-- เลือกบทบาท --</option>
+                        <option value="ครู" selected>ครู</option>
+                        <option value="เจ้าหน้าที่">เจ้าหน้าที่</option>
+                        <option value="ผู้บริหาร">ผู้บริหาร</option>
+                        <option value="admin">admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg text-xl font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105">เข้าสู่ระบบ</button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-500">ยังไม่มีบัญชี? <a href="#" class="text-blue-500 hover:underline">ให้ติดต่อผู้ดูแลระบบ</a></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="w-full text-center text-white text-xs mt-8 mb-2">
+        <p>&copy; <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?>. All rights reserved. | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?></p>
+    </footer>
+
+    <!-- AOS (Animate On Scroll) script initialization -->
+    <script>
+        AOS.init({
+            duration: 1200,  // Time of animation
+            easing: 'ease-out-back',  // Easing function for smooth transition
+        });
+    </script>
+
 </body>
 </html>

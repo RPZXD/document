@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (empty($_SESSION['logged_in'])) {
+    header('Location: login.php');
+    exit;
+}
 require_once __DIR__ . '/vendor/autoload.php';
 
 // อ่าน config
@@ -53,7 +58,7 @@ $pageConfig = $config['global'];
             </a>
             <div>
                 <a href="#upload" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">อัปโหลดเอกสาร</a>
-                <a href="#login" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">เข้าสู่ระบบ</a>
+                <a href="login.php" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">เข้าสู่ระบบ</a>
             </div>
         </div>
     </nav>
@@ -91,7 +96,7 @@ $pageConfig = $config['global'];
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 fade-in">
-        <div class="container mx-auto text-center">
+        <div class="container mx-auto text-center ">
             <p>&copy; <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?>. All rights reserved. | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?></p>
         </div>
     </footer>
