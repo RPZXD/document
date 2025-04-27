@@ -1,11 +1,6 @@
-require __DIR__ . '/vendor/autoload.php';
-
-use App\DatabaseUsers;
-use App\User;
-use App\AuthController;
-
+<?php
 session_start();
-$userDb = new DatabaseUsers();
-$user = new User($userDb);
-$auth = new AuthController($user);
-$auth->logout();
+session_unset();
+session_destroy();
+header('Location: login.php');
+exit;

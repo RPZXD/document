@@ -8,22 +8,36 @@ class DatabaseUsers
 {
     private $pdo;
 
-    public function __construct()
-    {
-        $dsn = 'mysql:host=localhost;dbname=phichaia_student;charset=utf8mb4';
-        $user = 'root';
-        $pass = '';
+    public function __construct(
+        $host = 'localhost',
+        $dbname = 'phichaia_student',
+        $username = 'root',
+        $password = ''
+    ) {
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
         try {
-            $this->pdo = new PDO($dsn, $user, $pass, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            $this->pdo = new PDO($dsn, $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
         } catch (PDOException $e) {
-            throw new \Exception('User DB Connection failed');
+            throw new \Exception('Database connection failed: ' . $e->getMessage());
         }
     }
 
-    public function getConnection(): PDO
+    public function getUserById($id)
     {
-        return $this->pdo;
+        $sql = "SELECT * FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch();
+    }
+
+    public function getUserByUsername($username)
+    {
+        $sql = "SELECT * FROM users WHERE username = :username";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['username' => $username]);
+        return $stmt->fetch();
     }
 }
