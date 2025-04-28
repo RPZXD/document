@@ -72,6 +72,15 @@ function getMenuByRole($role) {
 }
 
 $menuItems = getMenuByRole($role);
+
+// เพิ่ม $groupMap สำหรับฝ่ายงาน
+$groupMap = [
+    1 => 'วิชาการ',
+    2 => 'บุคคล',
+    3 => 'กิจการนักเรียน',
+    4 => 'การเงิน',
+    5 => 'บริหารทั่วไป',
+];
 ?>
 <!DOCTYPE html>
 <html lang="th">
