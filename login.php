@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <h2 class="text-3xl font-bold text-center text-blue-600 mb-6"><?php echo htmlspecialchars($pageConfig['pageTitle']); ?> 🌟</h2>
 
-            <?php if (isset($error)) { ?>
+            <?php if (isset($error) && $error !== 'success') { ?>
                 <script>
                 Swal.fire({
                     icon: 'error',
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php } ?>
 
     // Show SweetAlert2 on successful login (redirect after login)
-    <?php if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) { ?>
+    <?php if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($error) && $error === 'success') { ?>
         Swal.fire({
             icon: 'success',
             title: 'เข้าสู่ระบบสำเร็จ',

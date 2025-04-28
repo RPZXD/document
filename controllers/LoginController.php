@@ -20,10 +20,10 @@ class LoginController
                 'Teach_id' => $user['Teach_id'],
                 'Teach_name' => $user['Teach_name'],
                 'role_edoc' => $user['role_edoc'],
-                'Teach_photo' => $user['Teach_photo'], // เพิ่มบรรทัดนี้
+                'Teach_photo' => $user['Teach_photo'],
             ];
-            header('Location: dashboard.php');
-            exit;
+            // ไม่ redirect ทันที ให้ return 'success' เพื่อให้ login.php แสดง sweetalert2
+            return 'success';
         } else {
             return "ชื่อผู้ใช้, รหัสผ่าน หรือบทบาทไม่ถูกต้อง 🚫";
         }
