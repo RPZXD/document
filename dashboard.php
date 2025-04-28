@@ -1,4 +1,9 @@
 <?php
+// เปิด error reporting สำหรับ debug (ลบออกเมื่อขึ้น production จริง)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 if (empty($_SESSION['logged_in']) || empty($_SESSION['role']) || empty($_SESSION['user'])) {
     header('Location: login.php');
@@ -61,7 +66,7 @@ $ImgProfileUser = '';
 if (!empty($user['Teach_photo'])) {
     $ImgProfileUser = 'https://std.phichai.ac.th/teacher/uploads/phototeach/' . $user['Teach_photo'];
 } else {
-    $ImgProfileUser = '/document/src/logo/logo-phicha.png'; // fallback รูป default
+    $ImgProfileUser = 'logo-phicha.png'; // fallback รูป default
 }
 
 $roleWelcome = [
@@ -127,8 +132,13 @@ foreach ($dbDoc->fetchAll($sql) as $row) {
                 <img src="<?php echo htmlspecialchars($ImgProfileUser); ?>" alt="profile" class="object-cover w-full h-full">
             </div>
             <div class="flex flex-col">
-                <span class="font-semibold text-sm md:text-base"><?php echo htmlspecialchars($user['Teach_name']); ?></span>
-                <span class="text-xs text-blue-100"><?php echo htmlspecialchars($role); ?> | <?php echo htmlspecialchars(getRoleEdocName($user['role_edoc'])); ?></span>
+                <span class="font-semibold text-sm md:text-base">
+                    <?php echo htmlspecialchars(isset($user['Teach_name']) ? $user['Teach_name'] : 'ไม่ทราบชื่อ'); ?>
+                </span>
+                <span class="text-xs text-blue-100">
+                    <?php echo htmlspecialchars($role); ?> | 
+                    <?php echo htmlspecialchars(getRoleEdocName(isset($user['role_edoc']) ? $user['role_edoc'] : '')); ?>
+                </span>
             </div>
         </div>
         <!-- Floating Mobile Menu Button (top-right) -->
