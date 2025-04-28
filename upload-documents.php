@@ -17,7 +17,7 @@ $ImgProfileUser = '';
 if (!empty($user['Teach_photo'])) {
     $ImgProfileUser = 'https://std.phichai.ac.th/teacher/uploads/phototeach/' . $user['Teach_photo'];
 } else {
-    $ImgProfileUser = '/document/src/logo/logo-phicha.png'; // fallback รูป default
+    $ImgProfileUser = 'logo-phicha.png'; // fallback รูป default
 }
 
 $roleWelcome = [
