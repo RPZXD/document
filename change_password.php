@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="text-blue-700 font-bold text-lg"><?php echo htmlspecialchars($pageConfig['nameschool']); ?></span>
             </div>
             <h2 class="text-3xl font-bold text-center text-blue-600 mb-6">เปลี่ยนรหัสผ่าน 🔑</h2>
-
+            <span class="text-base text-red-500 ">** รหัสผ่านจะต้องประกอบไปด้วยตัวอักษรและตัวเลขอย่างน้อย 6 ตัวอักษร ** </span>
             <?php if ($error): ?>
                 <script>
                 Swal.fire({
