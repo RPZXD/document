@@ -49,7 +49,7 @@ function getMenuByRole($role) {
         'เจ้าหน้าที่' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
             ['label' => 'ดูเอกสาร', 'href' => 'view-documents.php'],
-            ['label' => 'อัพโหลด', 'href' => 'upload-documents.php'],
+            ['label' => 'อัปโหลด', 'href' => 'upload-documents.php'],
         ],
         'ผู้บริหาร' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
@@ -58,7 +58,7 @@ function getMenuByRole($role) {
         'admin' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
             ['label' => 'ดูเอกสาร', 'href' => 'view-documents.php'],
-            ['label' => 'อัพโหลด', 'href' => 'upload-documents.php'],
+            ['label' => 'อัปโหลด', 'href' => 'upload-documents.php'],
             ['label' => 'ตั้งค่า', 'href' => 'settings.php'],
             ['label' => 'จัดการผู้ใช้', 'href' => 'manage-users.php'],
             ['label' => 'รายงาน', 'href' => 'reports.php'],
@@ -83,19 +83,17 @@ use App\Controllers\ViewController;
 // ดึงข้อมูลเอกสาร
 $controller = new ViewController();
 $documents = $controller->index();
+
+// เพิ่ม CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
 ?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard | <?php echo htmlspecialchars($pageConfig['nameschool']); ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@200;300;400;500;600;700&display=swap">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <style>
-        body { font-family: 'Mali', sans-serif; }
-    </style>
+     <?php require_once 'header.php'; ?>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
 
@@ -153,7 +151,7 @@ $documents = $controller->index();
     </nav>
     <!-- Main Content -->
     <main class="flex-1 flex flex-col items-center justify-center py-6 md:py-10 px-2">
-        <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-6">
+        <div class="w-full max-w-7xl bg-white rounded-xl shadow-lg p-6">
             <h2 class="text-2xl font-extrabold mb-6 text-blue-700 flex items-center gap-2">
                 📑 รายการเอกสาร
             </h2>
@@ -170,12 +168,15 @@ $documents = $controller->index();
                 <table id="documentsTable" class="min-w-full table-auto border border-gray-200 rounded-lg overflow-hidden bg-white">
                     <thead class="bg-gradient-to-r from-blue-200 to-purple-200">
                         <tr>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">#️⃣</th>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">🆔 เลขที่เอกสาร</th>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">📄 ชื่อไฟล์</th>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">📝 หัวเรื่อง</th>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">📅 วันที่อัพโหลด</th>
-                            <th class="px-3 py-3 border text-blue-800 font-bold text-center">👤 โดย</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-12">#️⃣</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-32">🆔 เลขที่เอกสาร</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-64">📝 หัวเรื่อง</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-32">🏢 ฝ่ายงาน</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-40">📅 วันที่อัปโหลด</th>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-20">📄 ดาวน์โหลด</th>
+                            <?php if ($role === 'เจ้าหน้าที่' || $role === 'admin'): ?>
+                            <th class="px-3 py-3 border text-blue-800 font-bold text-center w-32">⚙️ จัดการ</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -186,66 +187,105 @@ $documents = $controller->index();
         </div>
     </main>
     <!-- Footer -->
-    <footer class="bg-gradient-to-r from-blue-700 to-purple-700 text-white text-center py-3 mt-10 shadow-inner text-xs md:text-base">
-        <div class="flex flex-col items-center">
-            <span class="text-base md:text-lg">© <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?> | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?> 🚀</span>
-            <span class="mt-1">ติดต่อผู้ดูแลระบบ: line:tiwarpz</span>
-        </div>
-    </footer>
+    <?php require_once 'footer.php'; ?>
 <!-- เพิ่ม DataTables CDN และ JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+function thaiDate(dateStr) {
+    if (!dateStr) return '';
+    const months = [
+        '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+    ];
+    const d = new Date(dateStr.replace(' ', 'T'));
+    if (isNaN(d)) return dateStr;
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear() + 543;
+    const hour = d.getHours().toString().padStart(2, '0');
+    const min = d.getMinutes().toString().padStart(2, '0');
+    return `${day} ${months[month]} ${year} ${hour}:${min} น.`;
+}
+
 $(document).ready(function() {
-    // สร้าง DataTable
+    var columns = [
+        { 
+            data: null,
+            render: function (data, type, row, meta) {
+                return `<span class="font-bold text-blue-700">${meta.row + 1}</span>`;
+            },
+            className: "text-center"
+        },
+        { 
+            data: 'doc_num',
+            render: function(data) {
+                return `<span class="text-blue-900 font-semibold">${data}</span>`;
+            },
+            className: "text-center"
+        },
+        { 
+            data: 'title',
+            render: function(data) {
+                return `<span class="text-gray-800">${data}</span>`;
+            }
+        },
+        { 
+            data: 'group_type',
+            render: function(data) {
+                const groupMap = {
+                    1: 'วิชาการ',
+                    2: 'บุคคล',
+                    3: 'กิจการนักเรียน',
+                    4: 'การเงิน',
+                    5: 'บริหารทั่วไป'
+                };
+                return `<span class="text-indigo-700 font-medium">${groupMap[data] || '-'}</span>`;
+            },
+            className: "text-center"
+        },
+        { 
+            data: 'date_upload',
+            render: function(data) {
+                return `<span class="text-purple-700">${thaiDate(data)}</span>`;
+            },
+            className: "text-center"
+        },
+        { 
+            data: 'file_name',
+            render: function(data, type, row) {
+                return `<a href="uploads/files/${encodeURIComponent(data)}" class="text-blue-600 underline font-medium hover:text-purple-600 transition" target="_blank">ดาวน์โหลด📁</a>`;
+            },
+            className: "text-center"
+        }
+    ];
+
+    <?php if ($role === 'เจ้าหน้าที่' || $role === 'admin'): ?>
+    columns.push({
+        data: null,
+        render: function(data, type, row) {
+            return `
+                <button class="edit-btn bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded mr-1" data-id="${row.id}" title="แก้ไข">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13zm0 0V21h8" />
+                    </svg>
+                </button>
+                <button class="delete-btn bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded" data-id="${row.id}" title="ลบ">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            `;
+        },
+        orderable: false,
+        className: "text-center"
+    });
+    <?php endif; ?>
+
     var table = $('#documentsTable').DataTable({
         ajax: 'api/documents.php',
-        columns: [
-            { 
-                data: null,
-                render: function (data, type, row, meta) {
-                    return `<span class="font-bold text-blue-700">${meta.row + 1}</span>`;
-                },
-                className: "text-center"
-            },
-            { 
-                data: 'doc_num',
-                render: function(data) {
-                    return `<span class="text-blue-900 font-semibold">${data}</span>`;
-                },
-                className: "text-center"
-            },
-            { 
-                data: 'file_name',
-                render: function(data, type, row) {
-                    return `<a href="uploads/${encodeURIComponent(data)}" class="text-blue-600 underline font-medium hover:text-purple-600 transition" target="_blank">📎 ${data}</a>`;
-                }
-            },
-            { 
-                data: 'title',
-                render: function(data) {
-                    return `<span class="text-gray-800">${data}</span>`;
-                }
-            },
-            { 
-                data: 'date_upload',
-                render: function(data) {
-                    return `<span class="text-purple-700">${data}</span>`;
-                },
-                className: "text-center"
-            },
-            { 
-                data: 'Teach_name',
-                render: function(data) {
-                    return `<span class="text-green-700 font-medium">${data ? data : '-'}</span>`;
-                },
-                className: "text-center"
-            }
-        ],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json'
-        },
+        columns: columns,
         initComplete: function(settings, json) {
             // สร้างปีใน dropdown จากข้อมูล pee
             var years = {};
@@ -275,7 +315,96 @@ $(document).ready(function() {
         }
         return true;
     });
+
+    <?php if ($role === 'เจ้าหน้าที่' || $role === 'admin'): ?>
+    // Modal logic
+    function openEditModal(rowData) {
+        $('#editDocId').val(rowData.id);
+        $('#editTitle').val(rowData.title);
+        $('#editDocNum').val(rowData.doc_num);
+        $('#editDetail').val(rowData.detail);
+        $('#editModal').removeClass('hidden');
+    }
+    function openDeleteModal(rowData) {
+        $('#deleteDocId').val(rowData.id);
+        $('#deleteDocTitle').text(rowData.title);
+        $('#deleteModal').removeClass('hidden');
+    }
+    $(document).on('click', '.edit-btn', function() {
+        var id = $(this).data('id');
+        var rowData = table.row($(this).closest('tr')).data();
+        openEditModal(rowData);
+    });
+    $(document).on('click', '.delete-btn', function() {
+        var id = $(this).data('id');
+        var rowData = table.row($(this).closest('tr')).data();
+        openDeleteModal(rowData);
+    });
+    $('.modal-close').on('click', function() {
+        $(this).closest('.modal').addClass('hidden');
+    });
+    $('#deleteForm').on('submit', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        $.post($form.attr('action'), $form.serialize())
+            .done(function() {
+                $('#deleteModal').addClass('hidden');
+                table.ajax.reload(null, false);
+            })
+            .fail(function() {
+                alert('เกิดข้อผิดพลาดในการลบ');
+            });
+    });
+    <?php endif; ?>
 });
 </script>
+
+<?php if ($role === 'เจ้าหน้าที่' || $role === 'admin'): ?>
+<!-- Edit Modal -->
+<div id="editModal" class="modal fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <button class="modal-close absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+        <h3 class="text-xl font-bold mb-4 text-yellow-600">แก้ไขเอกสาร</h3>
+        <form id="editForm" method="post" action="controllers/EditDocumentController.php">
+            <input type="hidden" name="id" id="editDocId">
+            <!-- เพิ่ม CSRF token -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">หัวเรื่อง</label>
+                <input type="text" name="title" id="editTitle" class="w-full border rounded px-3 py-2" required>
+            </div>
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">เลขที่เอกสาร</label>
+                <input type="text" name="doc_num" id="editDocNum" class="w-full border rounded px-3 py-2" required>
+            </div>
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">รายละเอียด</label>
+                <textarea name="detail" id="editDetail" class="w-full border rounded px-3 py-2"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="modal-close bg-gray-300 px-4 py-2 rounded">ยกเลิก</button>
+                <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6 relative">
+        <button class="modal-close absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+        <h3 class="text-xl font-bold mb-4 text-red-600">ยืนยันการลบ</h3>
+        <form id="deleteForm" method="post" action="controllers/DeleteDocumentController.php">
+            <input type="hidden" name="id" id="deleteDocId">
+            <!-- เพิ่ม CSRF token -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <p class="mb-4">คุณต้องการลบเอกสาร <span id="deleteDocTitle" class="font-semibold text-red-700"></span> ใช่หรือไม่?</p>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="modal-close bg-gray-300 px-4 py-2 rounded">ยกเลิก</button>
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">ลบ</button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 </body>
 </html>

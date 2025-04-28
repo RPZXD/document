@@ -25,6 +25,17 @@ class DatabaseUsers
         }
     }
 
+    // เพิ่มเมธอดนี้
+    public function query($sql, $params = [])
+    {
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            throw new \Exception('Database query error: ' . $e->getMessage());
+        }
+    }
 
     public function getTeacherByUsername($username)
     {

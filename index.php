@@ -1,9 +1,5 @@
 <?php
 session_start();
-if (empty($_SESSION['logged_in'])) {
-    header('Location: login.php');
-    exit;
-}
 require_once __DIR__ . '/vendor/autoload.php';
 
 // อ่าน config
@@ -14,8 +10,9 @@ $pageConfig = $config['global'];
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($pageConfig['logoLink']); ?>" />
     <title><?php echo htmlspecialchars($pageConfig['pageTitle']); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Google Font: Mali -->
@@ -57,7 +54,6 @@ $pageConfig = $config['global'];
                 <?php echo htmlspecialchars($pageConfig['nameschool']); ?>
             </a>
             <div>
-                <a href="#upload" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">อัปโหลดเอกสาร</a>
                 <a href="login.php" class="text-white px-4 py-2 hover:bg-blue-700 rounded transition duration-200">เข้าสู่ระบบ</a>
             </div>
         </div>
@@ -67,7 +63,7 @@ $pageConfig = $config['global'];
     <section class="gradient-bg text-white h-screen flex flex-col justify-center items-center text-center p-6 fade-in">
         <h1 class="text-5xl font-bold mb-4 bounce"><?php echo htmlspecialchars($pageConfig['pageTitle']); ?></h1>
         <p class="text-xl mb-8">แอปพลิเคชันที่ช่วยให้การอัปโหลดเอกสารง่าย และปลอดภัยยิ่งขึ้น</p>
-        <a href="#upload" class="bg-yellow-500 text-blue-600 px-6 py-3 rounded-lg text-xl font-semibold hover:bg-yellow-400 glow transition duration-200 shadow-lg animate-pulse">เริ่มใช้งานทันที 🚀</a>
+        <a href="login.php" class="bg-yellow-500 text-blue-600 px-6 py-3 rounded-lg text-xl font-semibold hover:bg-yellow-400 glow transition duration-200 shadow-lg animate-pulse">เริ่มใช้งานทันที 🚀</a>
     </section>
 
     <!-- Features Section -->
@@ -95,11 +91,7 @@ $pageConfig = $config['global'];
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 fade-in">
-        <div class="container mx-auto text-center ">
-            <p>&copy; <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?>. All rights reserved. | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?></p>
-        </div>
-    </footer>
+    <?php require_once 'footer.php'; ?>
 
 </body>
 </html>

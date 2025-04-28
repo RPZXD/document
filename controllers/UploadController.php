@@ -1,49 +1,60 @@
 <?php
-namespace App\Controllers;
+session_start();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../upload-documents.php');
+    exit;
+}
 
-use App\DocumentUploader;
-use App\DatabaseDocuments;
-use App\Document;
+// ตรวจสอบ CSRF Token
+if (
+    !isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
+    $_POST['csrf_token'] !== $_SESSION['csrf_token']
+) {
+    header('Location: ../upload-documents.php?error=CSRF+token+ไม่ถูกต้อง');
+    exit;
+}
 
-class UploadController
-{
-    private $db;
+require_once __DIR__ . '/../classes/DatabaseDocuments.php';
 
-    public function __construct()
-    {
-        $this->db = new DatabaseDocuments();
+$title = trim($_POST['title'] ?? '');
+$doc_num = trim($_POST['doc_num'] ?? '');
+$group_type = intval($_POST['group_type'] ?? 0);
+$pee = intval($_POST['pee'] ?? 0);
+$detail = trim($_POST['detail'] ?? '');
+$user = $_SESSION['user'];
+$upload_by = $user['Teach_id'];
+$date_upload = date('Y-m-d H:i:s');
+
+// ตรวจสอบไฟล์
+if (!empty($_FILES['file']['name'])) {
+    $file = $_FILES['file'];
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $datePart = date('Ymd');
+    $randPart = substr(bin2hex(random_bytes(3)), 0, 6);
+    $fileName = "{$datePart}-{$group_type}-{$randPart}." . $ext;
+    $targetDir = dirname(__DIR__) . '/uploads/files/';
+    if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+    $targetFile = $targetDir . $fileName;
+
+    if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+        // insert DB
+        $db = new \App\DatabaseDocuments();
+        $sql = "INSERT INTO uploads (file_name, title, group_type, detail, doc_num, pee, upload_by, date_upload)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $params = [$fileName, $title, $group_type, $detail, $doc_num, $pee, $upload_by, $date_upload];
+        try {
+            $db->execute($sql, $params);
+            header('Location: ../upload-documents.php?success=' . urlencode('อัปโหลดเอกสารสำเร็จ'));
+            exit;
+        } catch (Exception $e) {
+            header('Location: ../upload-documents.php?error=' . urlencode('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage()));
+            exit;
+        }
+    } else {
+        header('Location: ../upload-documents.php?error=' . urlencode('อัปโหลดไฟล์ไม่สำเร็จ'));
+        exit;
     }
-
-    public function handleUpload()
-    {
-        session_start();
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new \Exception('Invalid request method.');
-        }
-
-        // ตรวจสอบ CSRF Token
-        if (
-            !isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
-            $_POST['csrf_token'] !== $_SESSION['csrf_token']
-        ) {
-            throw new \Exception('Invalid CSRF token.');
-        }
-
-        if (!isset($_FILES['document'])) {
-            throw new \Exception('No file uploaded.');
-        }
-
-        $uploader = new DocumentUploader();
-        $uploadInfo = $uploader->upload($_FILES['document']);
-
-        // บันทึกข้อมูลลงฐานข้อมูล
-        $sql = "INSERT INTO documents (name, path, upload_date) VALUES (:name, :path, NOW())";
-        $params = [
-            'name' => $uploadInfo['name'],
-            'path' => $uploadInfo['path'],
-        ];
-        $this->db->execute($sql, $params);
-
-        return true;
-    }
+} else {
+    header('Location: ../upload-documents.php?error=' . urlencode('กรุณาเลือกไฟล์'));
+    exit;
 }

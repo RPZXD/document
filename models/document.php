@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../classes/DatabaseUsers.php';
 namespace App\Models;
+
+require_once __DIR__ . '/../classes/DatabaseUsers.php';
 
 use App\DatabaseDocuments;
 use App\DatabaseUsers;
@@ -13,7 +14,7 @@ class Document
     public function __construct()
     {
         $this->db = new DatabaseDocuments();
-        $this->dbUsers = new DatabaseUsers();
+        $this->dbUsers = new \App\DatabaseUsers(); // เพิ่ม backslash เพื่อเรียก class จาก global namespace
     }
 
     // ดึงเอกสารทั้งหมด พร้อมชื่อผู้ upload (Teach_name)

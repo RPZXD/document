@@ -49,7 +49,7 @@ function getMenuByRole($role) {
         'เจ้าหน้าที่' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
             ['label' => 'ดูเอกสาร', 'href' => 'view-documents.php'],
-            ['label' => 'อัพโหลด', 'href' => 'upload-documents.php'],
+            ['label' => 'อัปโหลด', 'href' => 'upload-documents.php'],
         ],
         'ผู้บริหาร' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
@@ -58,7 +58,7 @@ function getMenuByRole($role) {
         'admin' => [
             ['label' => 'หน้าหลัก', 'href' => 'dashboard.php'],
             ['label' => 'ดูเอกสาร', 'href' => 'view-documents.php'],
-            ['label' => 'อัพโหลด', 'href' => 'upload-documents.php'],
+            ['label' => 'อัปโหลด', 'href' => 'upload-documents.php'],
             ['label' => 'ตั้งค่า', 'href' => 'settings.php'],
             ['label' => 'จัดการผู้ใช้', 'href' => 'manage-users.php'],
             ['label' => 'รายงาน', 'href' => 'reports.php'],
@@ -72,19 +72,34 @@ function getMenuByRole($role) {
 }
 
 $menuItems = getMenuByRole($role);
+
+// โหลด autoload ถ้ายังไม่มี
+require_once __DIR__ . '/classes/DatabaseDocuments.php';
+
+use App\DatabaseDocuments;
+
+// ดึงจำนวนเอกสารแต่ละ group_type
+$dbDoc = new DatabaseDocuments();
+$groupCounts = [];
+$totalCount = 0;
+$groupMap = [
+    1 => ['label' => 'วิชาการ', 'emoji' => '📚', 'color' => 'indigo'],
+    2 => ['label' => 'บุคคล', 'emoji' => '👥', 'color' => 'pink'],
+    3 => ['label' => 'กิจการนักเรียน', 'emoji' => '🎒', 'color' => 'green'],
+    4 => ['label' => 'การเงิน', 'emoji' => '💰', 'color' => 'red'],
+    5 => ['label' => 'บริหารทั่วไป', 'emoji' => '🏢', 'color' => 'yellow'],
+];
+
+$sql = "SELECT group_type, COUNT(*) as cnt FROM uploads GROUP BY group_type";
+foreach ($dbDoc->fetchAll($sql) as $row) {
+    $groupCounts[$row['group_type']] = $row['cnt'];
+    $totalCount += $row['cnt'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard | <?php echo htmlspecialchars($pageConfig['nameschool']); ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@200;300;400;500;600;700&display=swap">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <style>
-        body { font-family: 'Mali', sans-serif; }
-    </style>
+    <?php require_once 'header.php'; ?>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
 
@@ -144,58 +159,29 @@ $menuItems = getMenuByRole($role);
     <main class="flex-1 flex flex-col items-center justify-center py-6 md:py-10 px-2">
         <!-- Dashboard Cards/Graphs with animation -->
         <div class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-blue-50" x-data="{ count: 0 }" x-intersect.once="count = 123">
+            <!-- รวมทั้งหมด -->
+            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-blue-50">
                 <span class="text-3xl md:text-4xl mb-2 animate-bounce">📄</span>
                 <div class="text-xl md:text-2xl font-bold text-blue-700">
-                    <span x-text="count"></span>
+                    <?= $totalCount ?>
                 </div>
                 <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารทั้งหมด</div>
             </div>
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-indigo-50" x-data="{ count: 0 }" x-intersect.once="count = 45">
-                <span class="text-3xl md:text-4xl mb-2 animate-bounce">📚</span>
-                <div class="text-xl md:text-2xl font-bold text-indigo-600">
-                    <span x-text="count"></span>
+            <!-- แสดงแต่ละ group_type -->
+            <?php foreach ($groupMap as $type => $info): ?>
+            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-<?= $info['color'] ?>-50">
+                <span class="text-3xl md:text-4xl mb-2 animate-bounce"><?= $info['emoji'] ?></span>
+                <div class="text-xl md:text-2xl font-bold text-<?= $info['color'] ?>-600">
+                    <?= isset($groupCounts[$type]) ? $groupCounts[$type] : 0 ?>
                 </div>
-                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่ายวิชาการ</div>
+                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่าย<?= $info['label'] ?></div>
             </div>
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-pink-50" x-data="{ count: 0 }" x-intersect.once="count = 32">
-                <span class="text-3xl md:text-4xl mb-2 animate-bounce">👥</span>
-                <div class="text-xl md:text-2xl font-bold text-pink-600">
-                    <span x-text="count"></span>
-                </div>
-                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่ายบุคคล</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-green-50" x-data="{ count: 0 }" x-intersect.once="count = 27">
-                <span class="text-3xl md:text-4xl mb-2 animate-bounce">🎒</span>
-                <div class="text-xl md:text-2xl font-bold text-green-600">
-                    <span x-text="count"></span>
-                </div>
-                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่ายกิจการนักเรียน</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-yellow-50" x-data="{ count: 0 }" x-intersect.once="count = 19">
-                <span class="text-3xl md:text-4xl mb-2 animate-bounce">🏢</span>
-                <div class="text-xl md:text-2xl font-bold text-yellow-600">
-                    <span x-text="count"></span>
-                </div>
-                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่ายบริหารทั่วไป</div>
-            </div>
-            <div class="bg-white rounded-xl shadow p-5 md:p-6 flex flex-col items-center transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:bg-red-50" x-data="{ count: 0 }" x-intersect.once="count = 8">
-                <span class="text-3xl md:text-4xl mb-2 animate-bounce">💰</span>
-                <div class="text-xl md:text-2xl font-bold text-red-600">
-                    <span x-text="count"></span>
-                </div>
-                <div class="text-gray-600 mt-1 text-sm md:text-base text-center">เอกสารฝ่ายงบประมาณ</div>
-            </div>
+            <?php endforeach; ?>
         </div>
         <!-- สามารถเพิ่มกราฟหรือข้อมูลอื่นๆ ได้ที่นี่ -->
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gradient-to-r from-blue-700 to-purple-700 text-white text-center py-3 mt-10 shadow-inner text-xs md:text-base">
-        <div class="flex flex-col items-center">
-            <span class="text-base md:text-lg">© <?=date('Y')?> <?php echo htmlspecialchars($pageConfig['nameschool']); ?> | <?php echo htmlspecialchars($pageConfig['footerCredit']); ?> 🚀</span>
-            <span class="mt-1">ติดต่อผู้ดูแลระบบ: line:tiwarpz</span>
-        </div>
-    </footer>
+    <?php require_once 'footer.php'; ?>
 </body>
 </html>

@@ -7,6 +7,12 @@ class LoginController
     public function login($username, $password, $role)
     {
         $user = User::authenticate($username, $password, $role);
+        if ($user === 'change_password') {
+            // redirect ไปหน้าเปลี่ยนรหัสผ่าน
+            $_SESSION['change_password_user'] = $username;
+            header('Location: change_password.php');
+            exit;
+        }
         if ($user) {
             $_SESSION['logged_in'] = true;
             $_SESSION['role'] = $role;

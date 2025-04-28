@@ -17,12 +17,17 @@ class User
         $db = new \App\DatabaseUsers();
         $user = $db->getTeacherByUsername($username);
 
-        if (
-            $user &&
-            password_verify($password, $user['password']) &&
-            self::roleMatch($user['role_edoc'], $role)
-        ) {
-            return $user;
+        if ($user) {
+            // ถ้า password ว่าง ให้ return 'change_password'
+            if (empty($user['password'])) {
+                return 'change_password';
+            }
+            if (
+                password_verify($password, $user['password']) &&
+                self::roleMatch($user['role_edoc'], $role)
+            ) {
+                return $user;
+            }
         }
         return false;
     }
