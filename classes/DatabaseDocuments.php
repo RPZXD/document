@@ -13,7 +13,7 @@ class DatabaseDocuments
         $dbname = 'phichaia_doc',
         // $username = 'root',
         // $password = ''
-        $username = 'phichaia_doc',
+        $username = 'phichaia_edoc',
         $password = 'L0k@m47h4'
     ) {
         $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
