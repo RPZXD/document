@@ -1,11 +1,7 @@
 <?php
 session_start();
-if (isset($_GET['confirm']) && $_GET['confirm'] == '1') {
-    session_unset();
-    session_destroy();
-    header('Location: login.php?logout=1');
-    exit;
-}
+session_unset();
+session_destroy();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,18 +14,16 @@ if (isset($_GET['confirm']) && $_GET['confirm'] == '1') {
 <body>
 <script>
     Swal.fire({
-        title: 'ยืนยันการออกจากระบบ',
-        text: 'คุณต้องการออกจากระบบหรือไม่?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'ออกจากระบบ',
-        cancelButtonText: 'ยกเลิก'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = 'logout.php?confirm=1';
-        } else {
-            window.location.href = 'index.php';
+        icon: 'success',
+        title: 'ออกจากระบบเรียบร้อยแล้ว',
+        text: 'คุณได้ออกจากระบบสำเร็จ',
+        confirmButtonText: 'ตกลง',
+        timer: 1500,
+        willClose: () => {
+            window.location.href = 'login.php?logout=1';
         }
+    }).then(() => {
+        window.location.href = 'login.php?logout=1';
     });
 </script>
 </body>

@@ -111,25 +111,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         });
     </script>
 
-    // sweetalert2 script initialization
+    <!-- sweetalert2 script initialization -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const passwordInput = document.getElementById('password');
-    const toggleBtn = document.getElementById('togglePassword');
-    const eyeIcon = document.getElementById('eyeIcon');
-    let show = false;
-    toggleBtn.addEventListener('click', function () {
-        show = !show;
-        passwordInput.type = show ? 'text' : 'password';
-        eyeIcon.innerHTML = show
-            ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13.875 18.825A10.05 10.05 0 0112 19c-5.418 0-9-3.79-9-6a9 9 0 0115.584-5.991M15 12a3 3 0 11-6 0 3 3 0 016 0zm6.121 6.121l-18-18" />`
-            : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9 0a9 9 0 0118 0c0 2.21-3.582 6-9 6s-9-3.79-9-6z" />`;
+    <script>
+    // Show SweetAlert2 on successful logout
+    <?php if (isset($_GET['logout']) && $_GET['logout'] == '1') { ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'ออกจากระบบสำเร็จ',
+            text: 'คุณได้ออกจากระบบเรียบร้อยแล้ว',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#3085d6'
+        });
+    <?php } ?>
+
+    // Show SweetAlert2 on successful login (redirect after login)
+    <?php if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) { ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'เข้าสู่ระบบสำเร็จ',
+            text: 'กำลังเข้าสู่ระบบ...',
+            showConfirmButton: false,
+            timer: 1500
+        }).then(() => {
+            window.location.href = 'index.php';
+        });
+    <?php } ?>
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('togglePassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        let show = false;
+        toggleBtn.addEventListener('click', function () {
+            show = !show;
+            passwordInput.type = show ? 'text' : 'password';
+            eyeIcon.innerHTML = show
+                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.418 0-9-3.79-9-6a9 9 0 0115.584-5.991M15 12a3 3 0 11-6 0 3 3 0 016 0zm6.121 6.121l-18-18" />`
+                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9 0a9 9 0 0118 0c0 2.21-3.582 6-9 6s-9-3.79-9-6z" />`;
+        });
     });
-});
-</script>
+    </script>
 
 </body>
 </html>
