@@ -196,6 +196,8 @@ $csrf_token = $_SESSION['csrf_token'];
     </main>
     <!-- Footer (เหมือน view-documents.php) -->
    <?php require_once 'footer.php'; ?>
+    <!-- SweetAlert2 Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?php if (isset($_GET['success'])): ?>
     <script>
         Swal.fire({
