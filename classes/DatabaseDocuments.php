@@ -10,10 +10,10 @@ class DatabaseDocuments
 
     public function __construct(
         $host = 'localhost',
-        $dbname = 'phichaia_doc',
+        $dbname = 'phichaia_edoc',
         // $username = 'root',
         // $password = ''
-        $username = 'phichaia_edoc',
+        $username = 'phichaia_doc',
         $password = 'L0k@m47h4'
     ) {
         $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
