@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <form action="login.php" method="POST">
                 <div class="mb-4">
-                    <label for="username" class="block text-lg font-medium text-gray-700">ชื่อผู้ใช้ 👤</label>
+                    <label for="username" class="block text-lg font-medium text-gray-700">ชื่อผู้ใช้ asdfasdfasdfs 👤</label>
                     <input type="text" name="username" id="username" class="mt-1 p-3 w-full border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อผู้ใช้" required>
                 </div>
                 <div class="mb-6">
