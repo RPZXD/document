@@ -9,7 +9,7 @@ class User
         'ครู' => ['T', 'ADM', 'VP', 'OF', 'DIR','HOD'],
         'เจ้าหน้าที่' => ['ADM', 'OF', 'HOD'],
         'ผู้บริหาร' => ['VP', 'DIR', 'ADM'],
-        'admin' => ['ADM']r
+        'admin' => ['ADM']
     ];
 
     public static function authenticate($username, $password, $role)
